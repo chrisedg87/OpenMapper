@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <PackageId>OpenMapper</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Chris Edgington</Authors>
+    <Company>Chris Edgington</Company>
+    <Product>OpenMapper</Product>
+    <Description>A lightweight object-to-object mapping library for .NET 8. OpenMapper provides convention-based property mapping with a simple, AutoMapper-inspired API. Perfect for projects that need basic object mapping without the complexity of larger frameworks.</Description>
+    <PackageTags>mapper;mapping;object-mapper;automapper;dto;model-mapping;reflection;dotnet</PackageTags>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <PackageProjectUrl>https://github.com/chrisedg87/OpenMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chrisedg87/OpenMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <PackageReleaseNotes>Initial release of OpenMapper with convention-based property mapping and dependency injection support.</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="OpenMapper.Tests/**" />
+  </ItemGroup>
+
+</Project>

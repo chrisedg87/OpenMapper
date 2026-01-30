@@ -1,0 +1,30 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenMapper", "OpenMapper.csproj", "{206F6F47-AC3C-3CEC-5B93-5A4486C383FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenMapper.Tests", "OpenMapper.Tests\OpenMapper.Tests.csproj", "{CCD750D6-AF54-41B3-B13E-750DA79E2A76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{206F6F47-AC3C-3CEC-5B93-5A4486C383FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206F6F47-AC3C-3CEC-5B93-5A4486C383FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206F6F47-AC3C-3CEC-5B93-5A4486C383FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206F6F47-AC3C-3CEC-5B93-5A4486C383FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCD750D6-AF54-41B3-B13E-750DA79E2A76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCD750D6-AF54-41B3-B13E-750DA79E2A76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCD750D6-AF54-41B3-B13E-750DA79E2A76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCD750D6-AF54-41B3-B13E-750DA79E2A76}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5EA4A1F3-E8FA-4FB1-A6AB-4E65677D7D70}
+	EndGlobalSection
+EndGlobal
