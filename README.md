@@ -2,6 +2,7 @@
 
 A lightweight object-to-object mapping library for .NET 8 with convention-based property mapping and a simple, AutoMapper-inspired API.
 
+[![build](https://github.com/chrisedg87/OpenMapper/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chrisedg87/OpenMapper/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/OpenMapper.svg)](https://www.nuget.org/packages/OpenMapper/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
