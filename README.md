@@ -502,12 +502,6 @@ Current version limitations (future enhancements planned):
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## Building from Source
 
 ```bash
@@ -537,7 +531,3 @@ Inspired by [AutoMapper](https://automapper.org/), OpenMapper provides a simpler
 
 - Report issues: [GitHub Issues](https://github.com/chrisedg87/OpenMapper/issues)
 - NuGet Package: [OpenMapper](https://www.nuget.org/packages/OpenMapper/)
-
----
-
-Made with ❤️ for the .NET community
