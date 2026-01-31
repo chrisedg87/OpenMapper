@@ -320,4 +320,83 @@ public class MapperTests
         Assert.Equal("Doe", dto.LastName);
         // Age and Email properties don't exist in PartialPersonDto
     }
+
+    [Fact]
+    public void Map_ListOfObjects_ShouldMapEachItemIndividually()
+    {
+        // Arrange
+        var config = new MapperConfiguration(new PersonProfile());
+        var mapper = config.CreateMapper();
+        var people = new List<Person>
+        {
+            new Person { FirstName = "John", LastName = "Doe", Age = 30, Email = "john@example.com" },
+            new Person { FirstName = "Jane", LastName = "Smith", Age = 25, Email = "jane@example.com" },
+            new Person { FirstName = "Bob", LastName = "Johnson", Age = 40, Email = "bob@example.com" }
+        };
+
+        // Act
+        var dtos = mapper.Map<List<PersonDto>>(people);
+
+        // Assert
+        Assert.NotNull(dtos);
+        Assert.Equal(3, dtos.Count);
+
+        Assert.Equal("John", dtos[0]?.FirstName);
+        Assert.Equal("Doe", dtos[0]?.LastName);
+        Assert.Equal(30, dtos[0]?.Age);
+        Assert.Equal("john@example.com", dtos[0]?.Email);
+
+        Assert.Equal("Jane", dtos[1]?.FirstName);
+        Assert.Equal("Smith", dtos[1]?.LastName);
+        Assert.Equal(25, dtos[1]?.Age);
+        Assert.Equal("jane@example.com", dtos[1]?.Email);
+
+        Assert.Equal("Bob", dtos[2]?.FirstName);
+        Assert.Equal("Johnson", dtos[2]?.LastName);
+        Assert.Equal(40, dtos[2]?.Age);
+        Assert.Equal("bob@example.com", dtos[2]?.Email);
+    }
+
+    [Fact]
+    public void Map_EmptyList_ShouldReturnEmptyList()
+    {
+        // Arrange
+        var config = new MapperConfiguration(new PersonProfile());
+        var mapper = config.CreateMapper();
+        var people = new List<Person>();
+
+        // Act
+        var dtos = mapper.Map<List<PersonDto>>(people);
+
+        // Assert
+        Assert.NotNull(dtos);
+        Assert.Empty(dtos);
+    }
+
+    [Fact]
+    public void Map_ListWithNullItems_ShouldHandleNullsGracefully()
+    {
+        // Arrange
+        var config = new MapperConfiguration(new PersonProfile());
+        var mapper = config.CreateMapper();
+        var people = new List<Person?>
+        {
+            new Person { FirstName = "John", LastName = "Doe", Age = 30, Email = "john@example.com" },
+            null,
+            new Person { FirstName = "Jane", LastName = "Smith", Age = 25, Email = "jane@example.com" }
+        };
+
+        // Act
+        var dtos = mapper.Map<List<PersonDto>>(people);
+        
+        // Assert
+        Assert.NotNull(dtos);
+        Assert.Equal(3, dtos.Count);
+        Assert.NotNull(dtos[0]);
+        Assert.Null(dtos[1]);
+        Assert.NotNull(dtos[2]);
+
+        Assert.Equal("John", dtos[0]?.FirstName);
+        Assert.Equal("Jane", dtos[2]?.FirstName);
+    }
 }

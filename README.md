@@ -8,6 +8,7 @@ A lightweight object-to-object mapping library for .NET 8 with convention-based 
 ## Features
 
 - **Convention-Based Mapping**: Automatically maps properties with matching names and compatible types
+- **Custom Member Mapping**: Use `ForMember` to define custom mapping expressions for any property
 - **Profile Organization**: Group related mappings into reusable Profile classes
 - **Dependency Injection Ready**: First-class support for .NET DI container with multiple registration styles
 - **Simple API**: Clean, intuitive interface inspired by AutoMapper
@@ -220,6 +221,159 @@ public class Destination
 }
 ```
 
+### Custom Member Mapping with ForMember
+
+Use `ForMember` to customize how individual properties are mapped. This is useful when:
+- Property names don't match
+- You need to transform or calculate values
+- You need to map from nested properties
+- Types need conversion
+
+```csharp
+public class Book
+{
+    public string Title { get; set; }
+    public List<string> Chapters { get; set; }
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+}
+
+public class BookDto
+{
+    public string Title { get; set; }
+    public int ChapterCount { get; set; }
+    public string PriceDisplay { get; set; }
+    public bool Available { get; set; }
+}
+
+public class BookProfile : Profile
+{
+    public BookProfile()
+    {
+        CreateMap<Book, BookDto>()
+            // Map from a collection count
+            .ForMember(dest => dest.ChapterCount,
+                opt => opt.MapFrom(src => src.Chapters.Count))
+
+            // Format a value with custom logic
+            .ForMember(dest => dest.PriceDisplay,
+                opt => opt.MapFrom(src => $"${src.Price:F2}"))
+
+            // Map with a boolean expression
+            .ForMember(dest => dest.Available,
+                opt => opt.MapFrom(src => src.Stock > 0));
+
+        // Title is auto-mapped by convention
+    }
+}
+```
+
+#### Complex Expressions
+
+`ForMember` supports any valid C# expression:
+
+```csharp
+public class UserDto
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public Address Address { get; set; }
+    public List<Order> Orders { get; set; }
+}
+
+public class UserViewModel
+{
+    public string FullName { get; set; }
+    public string City { get; set; }
+    public int OrderCount { get; set; }
+    public decimal TotalSpent { get; set; }
+}
+
+public class UserProfile : Profile
+{
+    public UserProfile()
+    {
+        CreateMap<UserDto, UserViewModel>()
+            // String concatenation
+            .ForMember(dest => dest.FullName,
+                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+
+            // Nested property access
+            .ForMember(dest => dest.City,
+                opt => opt.MapFrom(src => src.Address.City))
+
+            // LINQ expressions
+            .ForMember(dest => dest.OrderCount,
+                opt => opt.MapFrom(src => src.Orders.Count))
+
+            .ForMember(dest => dest.TotalSpent,
+                opt => opt.MapFrom(src => src.Orders.Sum(o => o.Total)));
+    }
+}
+```
+
+#### Type Conversion
+
+`ForMember` automatically converts between compatible types:
+
+```csharp
+public class Product
+{
+    public int Id { get; set; }
+    public decimal Price { get; set; }
+}
+
+public class ProductDto
+{
+    public string Id { get; set; }        // int → string conversion
+    public string Price { get; set; }     // decimal → string conversion
+}
+
+public class ProductProfile : Profile
+{
+    public ProductProfile()
+    {
+        CreateMap<Product, ProductDto>()
+            .ForMember(dest => dest.Id,
+                opt => opt.MapFrom(src => src.Id))        // Converts int to string
+
+            .ForMember(dest => dest.Price,
+                opt => opt.MapFrom(src => src.Price));    // Converts decimal to string
+    }
+}
+```
+
+#### Handling Null Values
+
+When mapping from properties that might be null, handle nulls in your expression:
+
+```csharp
+public class PersonDto
+{
+    public Address Address { get; set; }  // Might be null
+}
+
+public class PersonViewModel
+{
+    public string City { get; set; }
+}
+
+public class PersonProfile : Profile
+{
+    public PersonProfile()
+    {
+        CreateMap<PersonDto, PersonViewModel>()
+            // Safe navigation with null-conditional operator
+            .ForMember(dest => dest.City,
+                opt => opt.MapFrom(src => src.Address?.City ?? "Unknown"))
+
+            // Or use null-coalescing
+            .ForMember(dest => dest.City,
+                opt => opt.MapFrom(src => src.Address != null ? src.Address.City : "N/A"));
+    }
+}
+```
+
 ### Working with Complex Scenarios
 
 #### Mapping Collections
@@ -291,6 +445,30 @@ public abstract class Profile
 }
 ```
 
+### `IMappingExpression<TSource, TDestination>`
+
+Fluent interface for configuring type mappings.
+
+```csharp
+public interface IMappingExpression<TSource, TDestination>
+{
+    IMappingExpression<TSource, TDestination> ForMember<TMember>(
+        Expression<Func<TDestination, TMember>> destinationMember,
+        Action<MemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions);
+}
+```
+
+### `MemberConfigurationExpression<TSource, TDestination, TMember>`
+
+Configures custom mapping for a specific member.
+
+```csharp
+public class MemberConfigurationExpression<TSource, TDestination, TMember>
+{
+    public void MapFrom<TSourceMember>(Expression<Func<TSource, TSourceMember>> sourceMember);
+}
+```
+
 ### `IMapper`
 
 Main interface for performing mappings.
@@ -313,12 +491,12 @@ public interface IMapper
 
 Current version limitations (future enhancements planned):
 
-- No custom member mappings (property name transformations)
-- No value converters or type converters
+- No value converters or type converters (basic type conversion supported via `ForMember`)
 - No conditional mapping
 - No before/after map actions
+- No `Ignore()` support for explicitly ignoring properties
 - Destination types must have parameterless constructors
-- No automatic nested object mapping (you must map nested objects explicitly)
+- No automatic nested object mapping (you must map nested objects explicitly or use `ForMember`)
 
 ## Contributing
 

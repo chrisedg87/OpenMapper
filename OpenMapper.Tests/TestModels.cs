@@ -96,3 +96,38 @@ public class PersonWithAddressDto
     public string Name { get; set; } = string.Empty;
     public AddressDto? Address { get; set; }
 }
+
+// Models for ForMember tests
+public class Translation
+{
+    public string Language { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
+}
+
+public class Chapter
+{
+    public List<string> Lines { get; set; } = new();
+    public string PhotoUrl { get; set; } = string.Empty;
+    public List<Translation> Translations { get; set; } = new();
+}
+
+public class ChapterDto
+{
+    public int NumberOfLines { get; set; }
+    public string CoverPhotoUrl { get; set; } = string.Empty;
+    public Translation? Translation { get; set; }
+}
+
+public class Product
+{
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+}
+
+public class ProductDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string PriceString { get; set; } = string.Empty;
+    public bool InStock { get; set; }
+}

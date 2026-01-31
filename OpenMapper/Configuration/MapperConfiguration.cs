@@ -14,7 +14,7 @@ public class MapperConfiguration
             foreach (var config in profile.TypeMapConfigurations)
             {
                 var typePair = new TypePair(config.SourceType, config.DestinationType);
-                var typeMap = new TypeMap(config.SourceType, config.DestinationType);
+                var typeMap = new TypeMap(config);
                 _typeMaps[typePair] = typeMap;
             }
         }

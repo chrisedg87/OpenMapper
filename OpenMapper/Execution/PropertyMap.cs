@@ -1,21 +1,13 @@
-using System.Reflection;
-
 namespace OpenMapper.Execution;
 
-internal class PropertyMap
+internal abstract class PropertyMap
 {
-    public PropertyInfo SourceProperty { get; }
-    public PropertyInfo DestinationProperty { get; }
+    public string DestinationPropertyName { get; }
 
-    public PropertyMap(PropertyInfo sourceProperty, PropertyInfo destinationProperty)
+    protected PropertyMap(string destinationPropertyName)
     {
-        SourceProperty = sourceProperty;
-        DestinationProperty = destinationProperty;
+        DestinationPropertyName = destinationPropertyName;
     }
 
-    public void Map(object source, object destination)
-    {
-        var value = SourceProperty.GetValue(source);
-        DestinationProperty.SetValue(destination, value);
-    }
+    public abstract void Map(object source, object destination);
 }
