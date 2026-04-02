@@ -31,6 +31,30 @@ public class MapperTests
     }
 
     [Fact]
+    public void Map_WithGenericMethod_ShouldMapToRecordWithNoConstructor()
+    {
+        var config = new MapperConfiguration(new PersonProfile());
+        var mapper = config.CreateMapper();
+        var person = new Person
+        {
+            FirstName = "John",
+            LastName = "Doe",
+            Age = 30,
+            Email = "john.doe@example.com"
+        };
+
+        // Act
+        var dto = mapper.Map<Person, PersonRec>(person);
+
+        // Assert
+        Assert.NotNull(dto);
+        Assert.Equal("John", dto.FirstName);
+        Assert.Equal("Doe", dto.LastName);
+        Assert.Equal(30, dto.Age);
+        Assert.Equal("john.doe@example.com", dto.Email);
+    }
+
+    [Fact]
     public void Map_WithNonGenericMethod_ShouldMapCorrectly()
     {
         // Arrange

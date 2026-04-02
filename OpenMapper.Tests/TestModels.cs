@@ -34,6 +34,8 @@ public class PersonDto
     public string Email { get; set; } = string.Empty;
 }
 
+public record PersonRec(string FirstName, string LastName, int Age, string Email);
+
 public class EmployeeDto
 {
     public string FirstName { get; set; } = string.Empty;

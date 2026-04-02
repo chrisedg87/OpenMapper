@@ -8,12 +8,69 @@ internal class TypeMap
     private readonly Type _sourceType;
     private readonly Type _destinationType;
     private readonly List<PropertyMap> _propertyMaps;
+    private readonly ConstructorInfo? _primaryConstructor;
+    private readonly List<(ParameterInfo Parameter, PropertyInfo? SourceProperty)>? _constructorMappings;
 
     public TypeMap(TypeMapConfiguration config)
     {
         _sourceType = config.SourceType;
         _destinationType = config.DestinationType;
+
+        if (_destinationType.GetConstructor(Type.EmptyTypes) == null)
+            (_primaryConstructor, _constructorMappings) = FindBestConstructor();
+
         _propertyMaps = BuildPropertyMaps(config);
+    }
+
+    private (ConstructorInfo? ctor, List<(ParameterInfo, PropertyInfo?)> mappings) FindBestConstructor()
+    {
+        var constructors = _destinationType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+        var sourceProperties = _sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.CanRead)
+            .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+
+        ConstructorInfo? bestCtor = null;
+        List<(ParameterInfo, PropertyInfo?)>? bestMappings = null;
+        int bestMatchCount = -1;
+
+        foreach (var ctor in constructors)
+        {
+            var parameters = ctor.GetParameters();
+            var mappings = new List<(ParameterInfo, PropertyInfo?)>();
+            int matchCount = 0;
+
+            foreach (var param in parameters)
+            {
+                if (param.Name != null && sourceProperties.TryGetValue(param.Name, out var sourceProp))
+                {
+                    mappings.Add((param, sourceProp));
+                    matchCount++;
+                }
+                else
+                {
+                    mappings.Add((param, null));
+                }
+            }
+
+            if (matchCount > bestMatchCount)
+            {
+                bestMatchCount = matchCount;
+                bestCtor = ctor;
+                bestMappings = mappings;
+            }
+        }
+
+        return (bestCtor, bestMappings ?? []);
+    }
+
+    private static bool IsInitOnly(PropertyInfo property)
+    {
+        var setMethod = property.SetMethod;
+        if (setMethod == null) return false;
+
+        return setMethod.ReturnParameter
+            .GetRequiredCustomModifiers()
+            .Contains(typeof(System.Runtime.CompilerServices.IsExternalInit));
     }
 
     private List<PropertyMap> BuildPropertyMaps(TypeMapConfiguration config)
@@ -21,7 +78,7 @@ internal class TypeMap
         var propertyMaps = new List<PropertyMap>();
         var destinationProperties = _destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var destPropertiesDict = destinationProperties
-            .Where(p => p.CanWrite)
+            .Where(p => p.CanWrite && !IsInitOnly(p))
             .ToDictionary(p => p.Name);
 
         // Phase 1: Create CustomPropertyMap for each ForMember configuration
@@ -85,8 +142,33 @@ internal class TypeMap
         if (source == null)
             return null;
 
-        var destination = Activator.CreateInstance(_destinationType)
-            ?? throw new InvalidOperationException($"Cannot create instance of type {_destinationType.Name}");
+        object destination;
+
+        if (_primaryConstructor != null && _constructorMappings != null)
+        {
+            var args = _constructorMappings.Select(mapping =>
+            {
+                var (param, sourceProp) = mapping;
+                if (sourceProp != null)
+                {
+                    var value = sourceProp.GetValue(source);
+                    if (value != null && !param.ParameterType.IsAssignableFrom(value.GetType()))
+                        return Convert.ChangeType(value, param.ParameterType);
+                    return value;
+                }
+                return param.HasDefaultValue
+                    ? param.DefaultValue
+                    : param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null;
+            }).ToArray();
+
+            destination = _primaryConstructor.Invoke(args)
+                ?? throw new InvalidOperationException($"Cannot create instance of type {_destinationType.Name}");
+        }
+        else
+        {
+            destination = Activator.CreateInstance(_destinationType)
+                ?? throw new InvalidOperationException($"Cannot create instance of type {_destinationType.Name}");
+        }
 
         foreach (var propertyMap in _propertyMaps)
         {
