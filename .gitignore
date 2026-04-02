@@ -59,4 +59,6 @@ nunit-*.xml
 .claude
 .vscode
 
+.vs
+
 CLAUDE.md
