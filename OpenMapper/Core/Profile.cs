@@ -11,36 +11,37 @@ public abstract class Profile
     {
         var config = new TypeMapConfiguration(typeof(TSource), typeof(TDestination));
         TypeMapConfigurations.Add(config);
-        return new MappingExpression<TSource, TDestination>(config);
+        return new MappingExpression<TSource, TDestination>(config, TypeMapConfigurations);
     }
 
     private class MappingExpression<TSource, TDestination> : IMappingExpression<TSource, TDestination>
     {
         private readonly TypeMapConfiguration _config;
+        private readonly List<TypeMapConfiguration> _allConfigurations;
 
-        public MappingExpression(TypeMapConfiguration config)
+        public MappingExpression(TypeMapConfiguration config, List<TypeMapConfiguration> allConfigurations)
         {
             _config = config;
+            _allConfigurations = allConfigurations;
         }
 
         public IMappingExpression<TSource, TDestination> ForMember<TMember>(
             Expression<Func<TDestination, TMember>> destinationMember,
             Action<MemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions)
         {
-            // Extract property name from expression
             var memberName = GetMemberName(destinationMember);
-
-            // Create member configuration
             var memberConfig = new MemberConfiguration<TSource, TDestination>(memberName);
-
-            // Create expression and let user configure it
             var configExpression = new MemberConfigurationExpression<TSource, TDestination, TMember>(memberConfig);
             memberOptions(configExpression);
-
-            // Store in configuration
             _config.AddMemberConfiguration(memberName, memberConfig);
-
             return this;
+        }
+
+        public IMappingExpression<TDestination, TSource> ReverseMap()
+        {
+            var reverseConfig = new TypeMapConfiguration(typeof(TDestination), typeof(TSource));
+            _allConfigurations.Add(reverseConfig);
+            return new MappingExpression<TDestination, TSource>(reverseConfig, _allConfigurations);
         }
 
         private static string GetMemberName<TMember>(Expression<Func<TDestination, TMember>> expression)
